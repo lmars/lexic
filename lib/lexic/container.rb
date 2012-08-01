@@ -5,16 +5,7 @@ module Lexic
     attr_reader :name
 
     def self.create(name)
-      unless Process.uid == 0
-        raise RuntimeError, 'must be run as root'
-      end
-
-      container = new(name)
-
-      Dir.mkdir container.path
-      FileUtils.cp '/etc/lxc/lxc.conf', "#{container.path}/config"
-
-      Template['ubuntu'].run(container)
+      new(name).create
     end
 
     def initialize(name)
@@ -23,6 +14,17 @@ module Lexic
 
     def path
       "/var/lib/lxc/#{name}"
+    end
+
+    def create
+      unless Process.uid == 0
+        raise RuntimeError, 'must be run as root'
+      end
+
+      Dir.mkdir path
+      FileUtils.cp '/etc/lxc/lxc.conf', "#{path}/config"
+
+      Template['ubuntu'].run(self)
     end
   end
 end
