@@ -6,6 +6,7 @@ describe Lexic::Container do
 
   subject { Lexic::Container.new(name) }
 
+  its(:name) { should == name }
   its(:path) { should == path }
 
   describe '.create' do
@@ -45,7 +46,9 @@ describe Lexic::Container do
         Lexic::Container.create name
       end
 
-      it 'should run an ubuntu Template with the correct name' do
+      it 'should run an ubuntu Template passing in a container object' do
+        Lexic::Container.stub(:new => subject)
+
         template = double('template')
 
         Lexic::Template.
@@ -53,7 +56,7 @@ describe Lexic::Container do
           with('ubuntu').
           and_return(template)
 
-        template.should_receive(:run).with(name)
+        template.should_receive(:run).with(subject)
 
         Lexic::Container.create name
       end

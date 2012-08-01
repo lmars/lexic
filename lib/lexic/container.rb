@@ -2,6 +2,8 @@ require 'fileutils'
 
 module Lexic
   class Container
+    attr_reader :name
+
     def self.create(name)
       unless Process.uid == 0
         raise RuntimeError, 'must be run as root'
@@ -12,7 +14,7 @@ module Lexic
       Dir.mkdir container.path
       FileUtils.cp '/etc/lxc/lxc.conf', "#{container.path}/config"
 
-      Template['ubuntu'].run(name)
+      Template['ubuntu'].run(container)
     end
 
     def initialize(name)
@@ -20,7 +22,7 @@ module Lexic
     end
 
     def path
-      "/var/lib/lxc/#{@name}"
+      "/var/lib/lxc/#{name}"
     end
   end
 end
