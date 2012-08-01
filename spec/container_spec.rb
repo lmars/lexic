@@ -50,11 +50,9 @@ describe Lexic::Container do
         Process.stub(:uid => 0)
 
         Dir.stub(:mkdir)
-        FileUtils.stub(:cp)
+        Lexic::Config.stub(:new => double(:write => true))
         Lexic::Template.stub(:[] => double(:run => true))
       end
-
-      let(:default_config) { '/etc/lxc/lxc.conf' }
 
       it 'should create a directory for the container' do
         Dir.should_receive(:mkdir).with(path)
@@ -62,10 +60,15 @@ describe Lexic::Container do
         subject.create
       end
 
-      it 'should copy the default config into the containers directory' do
-        FileUtils.
-          should_receive(:cp).
-          with(default_config, "#{path}/config")
+      it 'should write a config file into the containers directory' do
+        config = double('config')
+
+        Lexic::Config.
+          should_receive(:new).
+          with("#{path}/config").
+          and_return(config)
+
+        config.should_receive(:write)
 
         subject.create
       end

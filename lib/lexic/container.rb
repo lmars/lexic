@@ -22,7 +22,8 @@ module Lexic
       end
 
       Dir.mkdir path
-      FileUtils.cp '/etc/lxc/lxc.conf', "#{path}/config"
+
+      Config.new("#{path}/config").write
 
       Template['ubuntu'].run(self)
     end
