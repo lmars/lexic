@@ -89,4 +89,29 @@ describe Lexic::Container do
       end
     end
   end
+
+  describe '#destroy' do
+    context 'when not run as root' do
+      before(:each) do
+        Process.stub(:uid => 1000)
+      end
+
+      it 'should raise a RuntimeError' do
+        expect { subject.destroy }.to \
+          raise_error(RuntimeError, 'must be run as root')
+      end
+    end
+
+    context 'when run as root' do
+      before(:each) do
+        Process.stub(:uid => 0)
+      end
+
+      it "remove the container's directory" do
+        FileUtils.should_receive(:rm_r).with(path)
+
+        subject.destroy
+      end
+    end
+  end
 end
