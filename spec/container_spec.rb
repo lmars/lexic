@@ -9,39 +9,54 @@ describe Lexic::Container do
   its(:path) { should == path }
 
   describe '.create' do
-    before(:each) do
-      Dir.stub(:mkdir)
-      FileUtils.stub(:cp)
-      Lexic::Template.stub(:[] => double(:run => true))
+    context 'when not run as root' do
+      before(:each) do
+        Process.stub(:uid => 1000)
+      end
+
+      it 'should raise a RuntimeError' do
+        expect { Lexic::Container.create name}.to \
+          raise_error(RuntimeError, 'must be run as root')
+      end
     end
 
-    let(:default_config) { '/etc/lxc/lxc.conf' }
+    context 'when run as root' do
+      before(:each) do
+        Process.stub(:uid => 0)
 
-    it 'should create a directory for the container' do
-      Dir.should_receive(:mkdir).with(path)
+        Dir.stub(:mkdir)
+        FileUtils.stub(:cp)
+        Lexic::Template.stub(:[] => double(:run => true))
+      end
 
-      Lexic::Container.create name
-    end
+      let(:default_config) { '/etc/lxc/lxc.conf' }
 
-    it 'should copy the default config into the containers directory' do
-      FileUtils.
-        should_receive(:cp).
-        with(default_config, "#{path}/config")
+      it 'should create a directory for the container' do
+        Dir.should_receive(:mkdir).with(path)
 
-      Lexic::Container.create name
-    end
+        Lexic::Container.create name
+      end
 
-    it 'should initialise an ubuntu Template object with the correct name' do
-      template = double('template')
+      it 'should copy the default config into the containers directory' do
+        FileUtils.
+          should_receive(:cp).
+          with(default_config, "#{path}/config")
 
-      Lexic::Template.
-        should_receive(:[]).
-        with('ubuntu').
-        and_return(template)
+        Lexic::Container.create name
+      end
 
-      template.should_receive(:run).with(name)
+      it 'should run an ubuntu Template with the correct name' do
+        template = double('template')
 
-      Lexic::Container.create name
+        Lexic::Template.
+          should_receive(:[]).
+          with('ubuntu').
+          and_return(template)
+
+        template.should_receive(:run).with(name)
+
+        Lexic::Container.create name
+      end
     end
   end
 end

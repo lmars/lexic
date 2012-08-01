@@ -3,6 +3,10 @@ require 'fileutils'
 module Lexic
   class Container
     def self.create(name)
+      unless Process.uid == 0
+        raise RuntimeError, 'must be run as root'
+      end
+
       container = new(name)
 
       Dir.mkdir container.path
