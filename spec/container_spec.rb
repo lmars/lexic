@@ -170,4 +170,24 @@ describe Lexic::Container do
       end
     end
   end
+
+  describe '#ip' do
+    let(:ip) { '10.0.3.3' }
+    let(:leases) do
+      [
+        "1343944392 00:11:22:33:44:55 10.0.3.2 foo     *",
+        "1343944592 00:11:22:33:44:56 #{ip}    #{name} *",
+        "1343944892 00:11:22:33:44:57 10.0.3.4 bar     *"
+      ]
+    end
+
+    it 'should find the ip in the leases database' do
+      File.
+        should_receive(:readlines).
+        with('/var/lib/misc/dnsmasq.leases').
+        and_return(leases)
+
+      subject.ip.should == ip
+    end
+  end
 end

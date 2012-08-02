@@ -51,5 +51,14 @@ module Lexic
 
       system("lxc-stop --name=#{name}")
     end
+
+    def ip
+      lease = File.
+        readlines('/var/lib/misc/dnsmasq.leases').
+        grep(/\b#{name}\b/).
+        first
+
+      lease.split(' ')[2]
+    end
   end
 end
