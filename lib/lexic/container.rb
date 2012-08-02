@@ -43,5 +43,13 @@ module Lexic
 
       system("lxc-start --name=#{name} --daemon")
     end
+
+    def stop
+      unless Process.uid == 0
+        raise RuntimeError, 'must be run as root'
+      end
+
+      system("lxc-stop --name=#{name}")
+    end
   end
 end

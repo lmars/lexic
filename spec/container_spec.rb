@@ -143,4 +143,31 @@ describe Lexic::Container do
       end
     end
   end
+
+  describe '#stop' do
+    context 'when not run as root' do
+      before(:each) do
+        Process.stub(:uid => 1000)
+      end
+
+      it 'should raise a RuntimeError' do
+        expect { subject.stop }.to \
+          raise_error(RuntimeError, 'must be run as root')
+      end
+    end
+
+    context 'when run as root' do
+      before(:each) do
+        Process.stub(:uid => 0)
+      end
+
+      it 'should run lxc-stop with the correct arguments' do
+        subject.
+          should_receive(:system).
+          with("lxc-stop --name=#{name}")
+
+        subject.stop
+      end
+    end
+  end
 end
