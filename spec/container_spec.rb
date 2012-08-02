@@ -114,4 +114,33 @@ describe Lexic::Container do
       end
     end
   end
+
+  describe '#start' do
+    context 'when not run as root' do
+      before(:each) do
+        Process.stub(:uid => 1000)
+      end
+
+      it 'should raise a RuntimeError' do
+        expect { subject.start }.to \
+          raise_error(RuntimeError, 'must be run as root')
+      end
+    end
+
+    context 'when run as root' do
+      before(:each) do
+        Process.stub(:uid => 0)
+      end
+
+      it 'should run lxc-start with the correct arguments' do
+        subject.should_receive(:system) do |command|
+          command.should match /lxc-start/
+          command.should match /--name=#{name}/
+          command.should match /--daemon/
+        end
+
+        subject.start
+      end
+    end
+  end
 end

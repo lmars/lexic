@@ -35,5 +35,13 @@ module Lexic
 
       FileUtils.rm_r path
     end
+
+    def start
+      unless Process.uid == 0
+        raise RuntimeError, 'must be run as root'
+      end
+
+      system("lxc-start --name=#{name} --daemon")
+    end
   end
 end
