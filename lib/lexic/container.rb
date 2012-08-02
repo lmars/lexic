@@ -60,5 +60,11 @@ module Lexic
 
       lease.split(' ')[2]
     end
+
+    def status
+      io = IO.popen("lxc-info --name=#{name}")
+      io.gets.match(/^state:\s+(.*)$/)
+      $1
+    end
   end
 end

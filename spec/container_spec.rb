@@ -190,4 +190,22 @@ describe Lexic::Container do
       subject.ip.should == ip
     end
   end
+
+  describe '#status' do
+    before(:each) do
+      IO.stub(:popen).with("lxc-info --name=#{name}").and_return(io)
+    end
+
+    context 'when the container is not running' do
+      let(:io) { double('io', :gets => 'state:   STOPPED') }
+
+      its(:status) { should == 'STOPPED' }
+    end
+
+    context 'when the container is running' do
+      let(:io) { double('io', :gets => 'state:   RUNNING') }
+
+      its(:status) { should == 'RUNNING' }
+    end
+  end
 end
