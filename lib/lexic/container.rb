@@ -36,9 +36,7 @@ module Lexic
     alias :exists? created?
 
     def destroy
-      unless exists?
-        raise ContainerDoesntExist, "#{name} doesnt exist"
-      end
+      require_existing_container!
 
       require_root!
 
@@ -46,9 +44,7 @@ module Lexic
     end
 
     def start
-      unless exists?
-        raise ContainerDoesntExist, "#{name} doesnt exist"
-      end
+      require_existing_container!
 
       require_root!
 
@@ -56,9 +52,7 @@ module Lexic
     end
 
     def stop
-      unless exists?
-        raise ContainerDoesntExist, "#{name} doesnt exist"
-      end
+      require_existing_container!
 
       require_root!
 
@@ -66,9 +60,7 @@ module Lexic
     end
 
     def ip
-      unless exists?
-        raise ContainerDoesntExist, "#{name} doesnt exist"
-      end
+      require_existing_container!
 
       lease = File.
         readlines('/var/lib/misc/dnsmasq.leases').
@@ -79,9 +71,7 @@ module Lexic
     end
 
     def status
-      unless exists?
-        raise ContainerDoesntExist, "#{name} doesnt exist"
-      end
+      require_existing_container!
 
       io = IO.popen("lxc-info --name=#{name}")
       io.gets.match(/^state:\s+(.*)$/)
@@ -89,6 +79,12 @@ module Lexic
     end
 
     private
+    def require_existing_container!
+      unless exists?
+        raise ContainerDoesntExist, "#{name} doesnt exist"
+      end
+    end
+
     def require_root!
       unless Process.uid == 0
         raise RuntimeError, 'must be run as root'
