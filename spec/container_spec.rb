@@ -1,6 +1,9 @@
 require 'spec_helper'
+require 'support/container_helper'
 
 describe Lexic::Container do
+  extend ContainerHelper
+
   let(:name) { 'test' }
   let(:path) { "/var/lib/lxc/#{name}" }
 
@@ -8,6 +11,10 @@ describe Lexic::Container do
 
   its(:name) { should == name }
   its(:path) { should == path }
+
+  assert_methods_require_existing_container(
+    :destroy, :start, :stop, :ip, :status
+  )
 
   describe '.create' do
     let(:container) { double('container', :create => true) }
@@ -34,6 +41,22 @@ describe Lexic::Container do
   end
 
   describe '#create' do
+    context 'when the container has already been created' do
+      before(:each) do
+        subject.stub(:created? => true)
+      end
+
+      it 'should raise a ContainerAlreadyExists error' do
+        expect { subject.create }.to \
+          raise_error(Lexic::ContainerAlreadyExists, "#{name} already exists")
+      end
+    end
+
+    # Assume the container is not created
+    before(:each) do
+      subject.stub(:created? => false)
+    end
+
     context 'when not run as root' do
       before(:each) do
         Process.stub(:uid => 1000)
@@ -87,6 +110,24 @@ describe Lexic::Container do
 
         subject.create
       end
+    end
+  end
+
+  describe '#created?' do
+    context "when the container's directory doesn't exist" do
+      before(:each) do
+        File.stub(:directory?).with(path).and_return(false)
+      end
+
+      it { should_not be_created }
+    end
+
+    context "when the container's directory does exist" do
+      before(:each) do
+        File.stub(:directory?).with(path).and_return(true)
+      end
+
+      it { should be_created }
     end
   end
 

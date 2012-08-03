@@ -17,6 +17,10 @@ module Lexic
     end
 
     def create
+      if created?
+        raise ContainerAlreadyExists, "#{name} already exists"
+      end
+
       unless Process.uid == 0
         raise RuntimeError, 'must be run as root'
       end
@@ -28,7 +32,16 @@ module Lexic
       Template['ubuntu'].run(self)
     end
 
+    def created?
+      File.directory?(path)
+    end
+    alias :exists? created?
+
     def destroy
+      unless exists?
+        raise ContainerDoesntExist, "#{name} doesnt exist"
+      end
+
       unless Process.uid == 0
         raise RuntimeError, 'must be run as root'
       end
@@ -37,6 +50,10 @@ module Lexic
     end
 
     def start
+      unless exists?
+        raise ContainerDoesntExist, "#{name} doesnt exist"
+      end
+
       unless Process.uid == 0
         raise RuntimeError, 'must be run as root'
       end
@@ -45,6 +62,10 @@ module Lexic
     end
 
     def stop
+      unless exists?
+        raise ContainerDoesntExist, "#{name} doesnt exist"
+      end
+
       unless Process.uid == 0
         raise RuntimeError, 'must be run as root'
       end
@@ -53,6 +74,10 @@ module Lexic
     end
 
     def ip
+      unless exists?
+        raise ContainerDoesntExist, "#{name} doesnt exist"
+      end
+
       lease = File.
         readlines('/var/lib/misc/dnsmasq.leases').
         grep(/\b#{name}\b/).
@@ -62,6 +87,10 @@ module Lexic
     end
 
     def status
+      unless exists?
+        raise ContainerDoesntExist, "#{name} doesnt exist"
+      end
+
       io = IO.popen("lxc-info --name=#{name}")
       io.gets.match(/^state:\s+(.*)$/)
       $1
