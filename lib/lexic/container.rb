@@ -21,9 +21,7 @@ module Lexic
         raise ContainerAlreadyExists, "#{name} already exists"
       end
 
-      unless Process.uid == 0
-        raise RuntimeError, 'must be run as root'
-      end
+      require_root!
 
       Dir.mkdir path
 
@@ -42,9 +40,7 @@ module Lexic
         raise ContainerDoesntExist, "#{name} doesnt exist"
       end
 
-      unless Process.uid == 0
-        raise RuntimeError, 'must be run as root'
-      end
+      require_root!
 
       FileUtils.rm_r path
     end
@@ -54,9 +50,7 @@ module Lexic
         raise ContainerDoesntExist, "#{name} doesnt exist"
       end
 
-      unless Process.uid == 0
-        raise RuntimeError, 'must be run as root'
-      end
+      require_root!
 
       system("lxc-start --name=#{name} --daemon")
     end
@@ -66,9 +60,7 @@ module Lexic
         raise ContainerDoesntExist, "#{name} doesnt exist"
       end
 
-      unless Process.uid == 0
-        raise RuntimeError, 'must be run as root'
-      end
+      require_root!
 
       system("lxc-stop --name=#{name}")
     end
@@ -94,6 +86,13 @@ module Lexic
       io = IO.popen("lxc-info --name=#{name}")
       io.gets.match(/^state:\s+(.*)$/)
       $1
+    end
+
+    private
+    def require_root!
+      unless Process.uid == 0
+        raise RuntimeError, 'must be run as root'
+      end
     end
   end
 end

@@ -16,6 +16,10 @@ describe Lexic::Container do
     :destroy, :start, :stop, :ip, :status
   )
 
+  assert_methods_require_root(
+    :create, :destroy, :start, :stop
+  )
+
   describe '.create' do
     let(:container) { double('container', :create => true) }
 
@@ -52,64 +56,47 @@ describe Lexic::Container do
       end
     end
 
-    # Assume the container is not created
     before(:each) do
+      # Assume the container is not created
       subject.stub(:created? => false)
+
+      Dir.stub(:mkdir)
+      Lexic::Config.stub(:new => double(:write => true))
+      Lexic::Template.stub(:[] => double(:run => true))
     end
 
-    context 'when not run as root' do
-      before(:each) do
-        Process.stub(:uid => 1000)
-      end
+    it 'should create a directory for the container' do
+      Dir.should_receive(:mkdir).with(path)
 
-      it 'should raise a RuntimeError' do
-        expect { subject.create }.to \
-          raise_error(RuntimeError, 'must be run as root')
-      end
+      subject.create
     end
 
-    context 'when run as root' do
-      before(:each) do
-        Process.stub(:uid => 0)
+    it 'should write a config file into the containers directory' do
+      config = double('config')
 
-        Dir.stub(:mkdir)
-        Lexic::Config.stub(:new => double(:write => true))
-        Lexic::Template.stub(:[] => double(:run => true))
-      end
+      Lexic::Config.
+        should_receive(:new).
+        with("#{path}/config").
+        and_return(config)
 
-      it 'should create a directory for the container' do
-        Dir.should_receive(:mkdir).with(path)
+      config.should_receive(:write)
 
-        subject.create
-      end
+      subject.create
+    end
 
-      it 'should write a config file into the containers directory' do
-        config = double('config')
+    it 'should run an ubuntu Template passing in a container object' do
+      Lexic::Container.stub(:new => subject)
 
-        Lexic::Config.
-          should_receive(:new).
-          with("#{path}/config").
-          and_return(config)
+      template = double('template')
 
-        config.should_receive(:write)
+      Lexic::Template.
+        should_receive(:[]).
+        with('ubuntu').
+        and_return(template)
 
-        subject.create
-      end
+      template.should_receive(:run).with(subject)
 
-      it 'should run an ubuntu Template passing in a container object' do
-        Lexic::Container.stub(:new => subject)
-
-        template = double('template')
-
-        Lexic::Template.
-          should_receive(:[]).
-          with('ubuntu').
-          and_return(template)
-
-        template.should_receive(:run).with(subject)
-
-        subject.create
-      end
+      subject.create
     end
   end
 
@@ -132,83 +119,32 @@ describe Lexic::Container do
   end
 
   describe '#destroy' do
-    context 'when not run as root' do
-      before(:each) do
-        Process.stub(:uid => 1000)
-      end
+    it "remove the container's directory" do
+      FileUtils.should_receive(:rm_r).with(path)
 
-      it 'should raise a RuntimeError' do
-        expect { subject.destroy }.to \
-          raise_error(RuntimeError, 'must be run as root')
-      end
-    end
-
-    context 'when run as root' do
-      before(:each) do
-        Process.stub(:uid => 0)
-      end
-
-      it "remove the container's directory" do
-        FileUtils.should_receive(:rm_r).with(path)
-
-        subject.destroy
-      end
+      subject.destroy
     end
   end
 
   describe '#start' do
-    context 'when not run as root' do
-      before(:each) do
-        Process.stub(:uid => 1000)
+    it 'should run lxc-start with the correct arguments' do
+      subject.should_receive(:system) do |command|
+        command.should match /lxc-start/
+        command.should match /--name=#{name}/
+        command.should match /--daemon/
       end
 
-      it 'should raise a RuntimeError' do
-        expect { subject.start }.to \
-          raise_error(RuntimeError, 'must be run as root')
-      end
-    end
-
-    context 'when run as root' do
-      before(:each) do
-        Process.stub(:uid => 0)
-      end
-
-      it 'should run lxc-start with the correct arguments' do
-        subject.should_receive(:system) do |command|
-          command.should match /lxc-start/
-          command.should match /--name=#{name}/
-          command.should match /--daemon/
-        end
-
-        subject.start
-      end
+      subject.start
     end
   end
 
   describe '#stop' do
-    context 'when not run as root' do
-      before(:each) do
-        Process.stub(:uid => 1000)
-      end
+    it 'should run lxc-stop with the correct arguments' do
+      subject.
+        should_receive(:system).
+        with("lxc-stop --name=#{name}")
 
-      it 'should raise a RuntimeError' do
-        expect { subject.stop }.to \
-          raise_error(RuntimeError, 'must be run as root')
-      end
-    end
-
-    context 'when run as root' do
-      before(:each) do
-        Process.stub(:uid => 0)
-      end
-
-      it 'should run lxc-stop with the correct arguments' do
-        subject.
-          should_receive(:system).
-          with("lxc-stop --name=#{name}")
-
-        subject.stop
-      end
+      subject.stop
     end
   end
 

@@ -20,4 +20,26 @@ module ContainerHelper
       subject.stub(:exists? => true)
     end
   end
+
+  def assert_methods_require_root(*methods)
+    methods.each do |method|
+      describe "##{method}" do
+        context 'when not run as root' do
+          before(:each) do
+            Process.stub(:uid => 1000)
+          end
+
+          it 'should raise a RuntimeError' do
+            expect { subject.public_send(method) }.to \
+              raise_error(RuntimeError, 'must be run as root')
+          end
+        end
+      end
+    end
+
+    # Assume root for the rest of the tests
+    before(:each) do
+      Process.stub(:uid => 0)
+    end
+  end
 end
