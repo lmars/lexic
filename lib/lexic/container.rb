@@ -4,6 +4,14 @@ module Lexic
   class Container
     attr_reader :name
 
+    def self.base_path
+      '/var/lib/lxc'
+    end
+
+    def self.all
+      Dir.glob("#{base_path}/*").map { |name| new(name) }
+    end
+
     def self.create(name)
       new(name).create
     end
@@ -13,7 +21,11 @@ module Lexic
     end
 
     def path
-      "/var/lib/lxc/#{name}"
+      "#{self.class.base_path}/#{name}"
+    end
+
+    def ==(other)
+      path == other.path
     end
 
     def create

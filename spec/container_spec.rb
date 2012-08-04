@@ -5,7 +5,8 @@ describe Lexic::Container do
   extend ContainerHelper
 
   let(:name) { 'test' }
-  let(:path) { "/var/lib/lxc/#{name}" }
+  let(:base_path) { '/var/lib/lxc' }
+  let(:path) { "#{base_path}/#{name}" }
 
   subject { Lexic::Container.new(name) }
 
@@ -19,6 +20,18 @@ describe Lexic::Container do
   assert_methods_require_root(
     :create, :destroy, :start, :stop
   )
+
+  describe '.all' do
+    let(:names) { %w(test1 test2 test3) }
+
+    before(:each) do
+      Dir.stub(:glob).with("#{base_path}/*").and_return(names)
+    end
+
+    it 'should return three Containers' do
+      Lexic::Container.all.should == names.map { |n| Lexic::Container.new(n) }
+    end
+  end
 
   describe '.create' do
     let(:container) { double('container', :create => true) }
