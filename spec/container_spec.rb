@@ -127,6 +127,23 @@ describe Lexic::Container do
   end
 
   describe '#start' do
+    context "when the bridge interface doesn't exist" do
+      before(:each) do
+        Lexic::Bridge.stub(:exists? => false)
+      end
+
+      it 'should setup the bridge interface' do
+        Lexic::Bridge.should_receive(:setup)
+
+        subject.start
+      end
+    end
+
+    # Assume the bridge interface exists
+    before(:each) do
+      Lexic::Bridge.stub(:exists? => true)
+    end
+
     it 'should run lxc-start with the correct arguments' do
       subject.should_receive(:system) do |command|
         command.should match /lxc-start/

@@ -1,6 +1,7 @@
 require 'lexic/container'
 require 'lexic/template'
 require 'lexic/config'
+require 'lexic/bridge'
 
 module Lexic
   class ContainerAlreadyExists < StandardError; end

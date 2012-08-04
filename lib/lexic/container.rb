@@ -48,6 +48,8 @@ module Lexic
 
       require_root!
 
+      Bridge.setup unless Bridge.exists?
+
       system("lxc-start --name=#{name} --daemon")
     end
 
