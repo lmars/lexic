@@ -200,6 +200,7 @@ describe Lexic::Container do
       subject.should_receive(:system) do |command|
         command.should match /lxc-start/
         command.should match /--name=#{name}/
+        command.should match /--rcfile=#{path}\/config/
         command.should match /--daemon/
       end
 

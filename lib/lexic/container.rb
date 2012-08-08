@@ -84,7 +84,7 @@ module Lexic
 
       Bridge.setup unless Bridge.exists?
 
-      system("lxc-start --name=#{name} --daemon")
+      system("lxc-start --name=#{name} --rcfile=#{config.path} --daemon")
     end
 
     def stop
