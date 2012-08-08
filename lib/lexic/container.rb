@@ -45,6 +45,8 @@ module Lexic
       Config.new("#{path}/config").write
 
       Template['ubuntu'].run(self)
+
+      self
     end
 
     def created?
