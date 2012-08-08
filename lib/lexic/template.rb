@@ -1,5 +1,7 @@
 module Lexic
   class Template
+    include Utils
+
     def self.[](name)
       template = new(name)
 
@@ -19,9 +21,7 @@ module Lexic
     end
 
     def run(container)
-      unless Process.uid == 0
-        raise RuntimeError, 'must be run as root'
-      end
+      require_root!
 
       system("#{path} --path=#{container.path} --name=#{container.name}")
     end

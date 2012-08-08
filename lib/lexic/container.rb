@@ -2,6 +2,8 @@ require 'fileutils'
 
 module Lexic
   class Container
+    include Utils
+
     attr_reader :name
 
     def self.base_path
@@ -99,12 +101,6 @@ module Lexic
     def require_existing_container!
       unless exists?
         raise ContainerDoesntExist, "#{name} doesnt exist"
-      end
-    end
-
-    def require_root!
-      unless Process.uid == 0
-        raise RuntimeError, 'must be run as root'
       end
     end
   end
