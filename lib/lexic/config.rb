@@ -1,6 +1,7 @@
 module Lexic
   class Config
     attr_reader :path
+    attr_writer :ip
 
     def initialize(path)
       @path = path
@@ -11,7 +12,7 @@ module Lexic
         file.puts 'lxc.network.type=veth'
         file.puts "lxc.network.link=#{Bridge.name}"
         file.puts 'lxc.network.flags=up'
-        file.puts 'lxc.network.ipv4=10.0.100.2'
+        file.puts "lxc.network.ipv4=#{ip}"
       end
     end
 
@@ -20,6 +21,8 @@ module Lexic
     end
 
     def ip
+      return @ip unless @ip.nil?
+
       unless File.exists?(path)
         raise ConfigFileDoesntExist, "#{path} doesn't exist"
       end

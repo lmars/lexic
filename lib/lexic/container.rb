@@ -1,4 +1,5 @@
 require 'fileutils'
+require 'ipaddr'
 
 module Lexic
   class Container
@@ -21,6 +22,15 @@ module Lexic
       new(name).create
     end
 
+    def self.available_ip
+      ip_low  = IPAddr.new '10.0.100.2'
+      ip_high = IPAddr.new '10.0.100.254'
+
+      (ip_low..ip_high).detect { |ip|
+        !all.map(&:ip).include?(ip.to_s)
+      }.to_s
+    end
+
     def initialize(name)
       @name   = name
       @config = Config.new("#{path}/config")
@@ -40,6 +50,10 @@ module Lexic
       end
 
       require_root!
+
+      # Grab the IP before this container comes
+      # into existence by creating it's directory
+      config.ip = self.class.available_ip
 
       FileUtils.mkdir_p path
 

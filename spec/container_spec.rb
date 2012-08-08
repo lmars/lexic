@@ -67,6 +67,24 @@ describe Lexic::Container do
     end
   end
 
+  describe '.available_ip' do
+    let(:containers) do
+      [
+        double(:ip => '10.0.100.2'),
+        double(:ip => '10.0.100.3'),
+        double(:ip => '10.0.100.5')
+      ]
+    end
+
+    before(:each) do
+      Lexic::Container.stub(:all => containers)
+    end
+
+    it 'should return the lowest ip in the Lexic network not used by any container' do
+      Lexic::Container.available_ip.should == '10.0.100.4'
+    end
+  end
+
   describe '#create' do
     context 'when the container has already been created' do
       before(:each) do
@@ -79,7 +97,8 @@ describe Lexic::Container do
       end
     end
 
-    let(:config) { double('config', :write => true) }
+    let(:config) { double('config', :ip= => true, :write => true) }
+    let(:available_ip) { '10.0.100.4' }
 
     before(:each) do
       # Assume the container is not created
@@ -88,6 +107,7 @@ describe Lexic::Container do
       subject.stub(:config => config)
 
       FileUtils.stub(:mkdir_p)
+      Lexic::Container.stub(:available_ip => available_ip)
       Lexic::Config.any_instance.stub(:write => true)
       Lexic::Template.stub(:[] => double(:run => true))
     end
@@ -98,7 +118,19 @@ describe Lexic::Container do
       subject.create
     end
 
-    it 'should write a config file into the containers directory' do
+    it 'should get an available ip for the container' do
+      Lexic::Container.should_receive(:available_ip)
+
+      subject.create
+    end
+
+    it "should assign the ip to the container's config object" do
+      config.should_receive(:ip=).with(available_ip)
+
+      subject.create
+    end
+
+    it "should call write on the container's config object" do
       config.should_receive(:write)
 
       subject.create
