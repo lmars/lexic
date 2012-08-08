@@ -4,7 +4,7 @@ module Lexic
   class Container
     include Utils
 
-    attr_reader :name
+    attr_reader :name, :config
 
     def self.base_path
       "#{ENV['HOME']}/.lexic"
@@ -22,7 +22,8 @@ module Lexic
     end
 
     def initialize(name)
-      @name = name
+      @name   = name
+      @config = Config.new("#{path}/config")
     end
 
     def path
@@ -42,7 +43,7 @@ module Lexic
 
       FileUtils.mkdir_p path
 
-      Config.new("#{path}/config").write
+      config.write
 
       Template['ubuntu'].run(self)
 
@@ -83,12 +84,7 @@ module Lexic
     def ip
       require_existing_container!
 
-      lease = File.
-        readlines('/var/lib/misc/dnsmasq.leases').
-        grep(/\b#{name}\b/).
-        first
-
-      lease.split(' ')[2]
+      config.ip
     end
 
     def status

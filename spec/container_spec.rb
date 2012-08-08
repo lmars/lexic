@@ -79,12 +79,16 @@ describe Lexic::Container do
       end
     end
 
+    let(:config) { double('config', :write => true) }
+
     before(:each) do
       # Assume the container is not created
       subject.stub(:created? => false)
 
+      subject.stub(:config => config)
+
       FileUtils.stub(:mkdir_p)
-      Lexic::Config.stub(:new => double(:write => true))
+      Lexic::Config.any_instance.stub(:write => true)
       Lexic::Template.stub(:[] => double(:run => true))
     end
 
@@ -95,13 +99,6 @@ describe Lexic::Container do
     end
 
     it 'should write a config file into the containers directory' do
-      config = double('config')
-
-      Lexic::Config.
-        should_receive(:new).
-        with("#{path}/config").
-        and_return(config)
-
       config.should_receive(:write)
 
       subject.create
@@ -188,22 +185,26 @@ describe Lexic::Container do
     end
   end
 
+  describe '#config' do
+    it 'returns a Config with the correct path' do
+      subject.config.path.should == "#{path}/config"
+    end
+  end
+
   describe '#ip' do
-    let(:ip) { '10.0.3.3' }
-    let(:leases) do
-      [
-        "1343944392 00:11:22:33:44:55 10.0.3.2 foo     *",
-        "1343944592 00:11:22:33:44:56 #{ip}    #{name} *",
-        "1343944892 00:11:22:33:44:57 10.0.3.4 bar     *"
-      ]
+    let(:ip) { double('ip') }
+    let(:config) { double('config', :ip => ip) }
+
+    before(:each) do
+      subject.stub(:config => config)
     end
 
-    it 'should find the ip in the leases database' do
-      File.
-        should_receive(:readlines).
-        with('/var/lib/misc/dnsmasq.leases').
-        and_return(leases)
+    it "should delegate to the container's config" do
+      config.should_receive(:ip)
+      subject.ip
+    end
 
+    it "should return the ip of the container's config" do
       subject.ip.should == ip
     end
   end
