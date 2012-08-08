@@ -1,4 +1,4 @@
-module ContainerHelper
+module Assertions
   def assert_methods_require_existing_container(*methods)
     methods.each do |method|
       describe "##{method}" do

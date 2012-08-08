@@ -1,6 +1,8 @@
 require 'spec_helper'
 
 describe Lexic::Bridge do
+  extend Assertions
+
   let(:name) { 'test-br0' }
   let(:network) { '1.1.1.0' }
   let(:ip) { '1.1.1.1' }
@@ -10,6 +12,8 @@ describe Lexic::Bridge do
   before(:each) do
     subject.stub(:name => name, :network => network, :ip => ip, :netmask => netmask)
   end
+
+  assert_methods_require_root(:setup)
 
   describe '#exists?' do
     context "when the bridge's sysfs directory exists" do

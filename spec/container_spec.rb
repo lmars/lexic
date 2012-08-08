@@ -1,8 +1,7 @@
 require 'spec_helper'
-require 'support/container_helper'
 
 describe Lexic::Container do
-  extend ContainerHelper
+  extend Assertions
 
   let(:name) { 'test' }
   let(:home_path) { '/home/test' }

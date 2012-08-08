@@ -1,6 +1,8 @@
 module Lexic
   module Bridge
     class << self
+      include Utils
+
       def exists?
         File.directory? sysfs_dir
       end
@@ -22,6 +24,8 @@ module Lexic
       end
 
       def setup
+        require_root!
+
         system("brctl addbr #{name}")
         system("ifconfig #{name} #{ip} netmask #{netmask} up")
         system("iptables -A POSTROUTING -s #{network} -t nat -j MASQUERADE")
