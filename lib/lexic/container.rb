@@ -5,7 +5,7 @@ module Lexic
     attr_reader :name
 
     def self.base_path
-      '/var/lib/lxc'
+      "#{ENV['HOME']}/.lexic"
     end
 
     def self.all
@@ -35,7 +35,7 @@ module Lexic
 
       require_root!
 
-      Dir.mkdir path
+      FileUtils.mkdir_p path
 
       Config.new("#{path}/config").write
 

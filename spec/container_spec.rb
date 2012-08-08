@@ -5,10 +5,20 @@ describe Lexic::Container do
   extend ContainerHelper
 
   let(:name) { 'test' }
-  let(:base_path) { '/var/lib/lxc' }
+  let(:home_path) { '/home/test' }
+  let(:base_path) { "#{home_path}/.lexic" }
   let(:path) { "#{base_path}/#{name}" }
 
   subject { Lexic::Container.new(name) }
+
+  before(:each) do
+    @__home = ENV['HOME']
+    ENV['HOME'] = home_path
+  end
+
+  after(:each) do
+    ENV['HOME'] = @__home
+  end
 
   its(:name) { should == name }
   its(:path) { should == path }
@@ -73,13 +83,13 @@ describe Lexic::Container do
       # Assume the container is not created
       subject.stub(:created? => false)
 
-      Dir.stub(:mkdir)
+      FileUtils.stub(:mkdir_p)
       Lexic::Config.stub(:new => double(:write => true))
       Lexic::Template.stub(:[] => double(:run => true))
     end
 
     it 'should create a directory for the container' do
-      Dir.should_receive(:mkdir).with(path)
+      FileUtils.should_receive(:mkdir_p).with(path)
 
       subject.create
     end
