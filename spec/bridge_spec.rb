@@ -4,13 +4,13 @@ describe Lexic::Bridge do
   extend Assertions
 
   let(:name) { 'test-br0' }
-  let(:network) { '1.1.1.0' }
-  let(:ip) { '1.1.1.1' }
+  let(:network) { '10.0.100.0/24' }
+  let(:ip) { '10.0.100.1' }
   let(:netmask) { '255.255.255.0' }
   let(:sysfs_dir) { "/sys/class/net/#{name}" }
 
   before(:each) do
-    subject.stub(:name => name, :network => network, :ip => ip, :netmask => netmask)
+    subject.stub(:name => name)
   end
 
   assert_methods_require_root(:setup)

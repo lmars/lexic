@@ -9,7 +9,7 @@ module Lexic
     def write
       File.open(path, 'w') do |file|
         file.puts 'lxc.network.type=veth'
-        file.puts 'lxc.network.link=lxcbr0'
+        file.puts "lxc.network.link=#{Bridge.name}"
         file.puts 'lxc.network.flags=up'
         file.puts 'lxc.network.ipv4=10.0.100.2'
       end
