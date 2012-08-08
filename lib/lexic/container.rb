@@ -9,7 +9,10 @@ module Lexic
     end
 
     def self.all
-      Dir.glob("#{base_path}/*").map { |name| new(name) }
+      Dir.glob("#{base_path}/*").map do |path|
+        name = File.basename(path)
+        new(name)
+      end
     end
 
     def self.create(name)

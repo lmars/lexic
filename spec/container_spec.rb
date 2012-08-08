@@ -33,9 +33,10 @@ describe Lexic::Container do
 
   describe '.all' do
     let(:names) { %w(test1 test2 test3) }
+    let(:paths) { names.map { |n| "#{base_path}/#{n}" } }
 
     before(:each) do
-      Dir.stub(:glob).with("#{base_path}/*").and_return(names)
+      Dir.stub(:glob).with("#{base_path}/*").and_return(paths)
     end
 
     it 'should return three Containers' do
