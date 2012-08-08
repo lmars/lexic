@@ -6,10 +6,10 @@ describe Lexic::Config do
 
     subject { Lexic::Config.new(path) }
 
-    it 'opens the correct file in append mode' do
+    it 'opens the correct file in write mode' do
       File.
         should_receive(:open).
-        with(path, 'a')
+        with(path, 'w')
 
       subject.write
     end

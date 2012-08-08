@@ -5,7 +5,7 @@ module Lexic
     end
 
     def write
-      File.open(@path, 'a') do |file|
+      File.open(@path, 'w') do |file|
         file.puts 'lxc.network.type=veth'
         file.puts 'lxc.network.link=lxcbr0'
         file.puts 'lxc.network.flags=up'
