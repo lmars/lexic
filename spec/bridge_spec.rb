@@ -35,7 +35,26 @@ describe Lexic::Bridge do
 
   describe '#setup' do
     before(:each) do
+      # Stub system so we dont actually exec commands
       subject.stub(:system)
+    end
+
+    %w(brctl iptables).each do |command|
+      context "when #{command} is missing" do
+        before(:each) do
+          subject.stub(:system).with("which #{command}").and_return(false)
+        end
+
+        it 'should raise a BridgeCommandNotFound error' do
+          expect { subject.setup }.to \
+            raise_error(Lexic::BridgeCommandNotFound, command)
+        end
+      end
+
+      before(:each) do
+        # Assume the command exists
+        subject.stub(:system).with("which #{command}").and_return(true)
+      end
     end
 
     it 'should create a bridge interface with the correct name' do

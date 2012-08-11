@@ -26,6 +26,12 @@ module Lexic
       def setup
         require_root!
 
+        %w(brctl iptables).each do |command|
+          unless system("which #{command}")
+            raise BridgeCommandNotFound, command
+          end
+        end
+
         system("brctl addbr #{name}")
         system("ifconfig #{name} #{ip} netmask #{netmask} up")
         system("iptables -A POSTROUTING -s #{network} -t nat -j MASQUERADE")
