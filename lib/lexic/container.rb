@@ -51,8 +51,8 @@ module Lexic
 
       require_root!
 
-      # Grab the IP before this container comes
-      # into existence by creating it's directory
+      # Grab the IP before creating the directory, as creating the
+      # directory will include this container in Container.all
       config.ip = self.class.available_ip
 
       FileUtils.mkdir_p path
