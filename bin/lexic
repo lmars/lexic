@@ -1,0 +1,17 @@
+#!/usr/bin/env ruby
+
+unless ARGV.size > 0
+  $stderr.puts "Usage: #{$0} COMMAND [args]"
+  exit 1
+end
+
+$:.unshift File.dirname(__FILE__) + '/../lib'
+
+require 'lexic'
+
+begin
+  Lexic::Cli.new(ARGV).execute
+rescue Lexic::CliNameNotSpecified
+  $stderr.puts "Usage: #{$0} #{ARGV[0]} container-name"
+  exit 1
+end
