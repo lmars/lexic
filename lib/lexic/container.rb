@@ -46,7 +46,7 @@ module Lexic
 
     def create
       if created?
-        raise ContainerAlreadyExists, "#{name} already exists"
+        raise ContainerAlreadyExists, name
       end
 
       require_root!
@@ -112,7 +112,7 @@ module Lexic
     private
     def require_existing_container!
       unless exists?
-        raise ContainerDoesntExist, "#{name} doesnt exist"
+        raise ContainerDoesntExist, name
       end
     end
   end

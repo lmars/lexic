@@ -71,7 +71,7 @@ describe Lexic::Config do
 
         it 'should raise a ConfigFileDoesntExist error' do
           expect { subject.ip }.to \
-            raise_error(Lexic::ConfigFileDoesntExist, "#{path} doesn't exist")
+            raise_error(Lexic::ConfigFileDoesntExist, path)
         end
       end
 

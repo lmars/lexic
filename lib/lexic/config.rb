@@ -24,7 +24,7 @@ module Lexic
       return @ip unless @ip.nil?
 
       unless File.exists?(path)
-        raise ConfigFileDoesntExist, "#{path} doesn't exist"
+        raise ConfigFileDoesntExist, path
       end
 
       read.match /ipv4=(.*)/

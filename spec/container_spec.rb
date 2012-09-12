@@ -93,7 +93,7 @@ describe Lexic::Container do
 
       it 'should raise a ContainerAlreadyExists error' do
         expect { subject.create }.to \
-          raise_error(Lexic::ContainerAlreadyExists, "#{name} already exists")
+          raise_error(Lexic::ContainerAlreadyExists, name)
       end
     end
 

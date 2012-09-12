@@ -9,7 +9,7 @@ module Assertions
 
           it 'raises a ContainerDoesntExist error' do
             expect { subject.public_send(method) }.to \
-              raise_error(Lexic::ContainerDoesntExist, "#{name} doesnt exist")
+              raise_error(Lexic::ContainerDoesntExist, name)
           end
         end
       end
