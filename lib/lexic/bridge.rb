@@ -24,7 +24,7 @@ module Lexic
       end
 
       def setup
-        require_root!
+        require_root
 
         %w(brctl iptables).each do |command|
           unless system("which #{command}")

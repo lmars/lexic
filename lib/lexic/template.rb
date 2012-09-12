@@ -21,7 +21,7 @@ module Lexic
     end
 
     def run(container)
-      require_root!
+      require_root
 
       system("#{path} --path=#{container.path} --name=#{container.name}")
     end

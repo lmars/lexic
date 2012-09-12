@@ -49,7 +49,7 @@ module Lexic
         raise ContainerAlreadyExists, name
       end
 
-      require_root!
+      require_root
 
       # Grab the IP before creating the directory, as creating the
       # directory will include this container in Container.all
@@ -70,17 +70,17 @@ module Lexic
     alias :exists? created?
 
     def destroy
-      require_existing_container!
+      require_existing_container
 
-      require_root!
+      require_root
 
       FileUtils.rm_r path
     end
 
     def start
-      require_existing_container!
+      require_existing_container
 
-      require_root!
+      require_root
 
       Bridge.setup unless Bridge.exists?
 
@@ -88,21 +88,21 @@ module Lexic
     end
 
     def stop
-      require_existing_container!
+      require_existing_container
 
-      require_root!
+      require_root
 
       system("lxc-stop --name=#{name}")
     end
 
     def ip
-      require_existing_container!
+      require_existing_container
 
       config.ip
     end
 
     def status
-      require_existing_container!
+      require_existing_container
 
       io = IO.popen("lxc-info --name=#{name}")
       io.gets.match(/^state:\s+(.*)$/)
@@ -110,7 +110,7 @@ module Lexic
     end
 
     private
-    def require_existing_container!
+    def require_existing_container
       unless exists?
         raise ContainerDoesntExist, name
       end
